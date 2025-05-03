@@ -28,14 +28,27 @@ export async function updateSession(request) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+  console.log(request.nextUrl.pathname)
+
   if (
     !user &&
     !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth') 
+    !request.nextUrl.pathname.startsWith('/auth') &&
+    request.nextUrl.pathname !== '/'  
     )
    {
     const url = request.nextUrl.clone()
-    url.pathname = '/login'
+    url.pathname = '/login' 
+    return NextResponse.redirect(url)
+  }
+  
+  if (
+    user &&
+    request.nextUrl.pathname.startsWith('/login')
+  )
+   {
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
     return NextResponse.redirect(url)
   }
   return supabaseResponse
