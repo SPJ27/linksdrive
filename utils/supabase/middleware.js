@@ -34,7 +34,10 @@ export async function updateSession(request) {
     !user &&
     !request.nextUrl.pathname.startsWith('/login') &&
     !request.nextUrl.pathname.startsWith('/auth') &&
-    request.nextUrl.pathname !== '/'  
+    request.nextUrl.pathname !== '/' &&
+    request.nextUrl.pathname !== '/api/username' &&
+    request.nextUrl.pathname !== '/emailsent'&& 
+    request.nextUrl.pathname !== '/error' 
     )
    {
     const url = request.nextUrl.clone()
@@ -48,7 +51,7 @@ export async function updateSession(request) {
   )
    {
     const url = request.nextUrl.clone()
-    url.pathname = '/'
+    url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
   return supabaseResponse

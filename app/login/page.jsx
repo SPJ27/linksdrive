@@ -1,7 +1,9 @@
-import React from "react";
-import { login, signup } from './actions'
-
+"use client";
+// import React from "react";
+import { login, signup } from "./actions";
+import { useState } from "react";
 const page = () => {
+  const [text, setText] = useState();
   return (
     <div>
       <section className="darkMode bg-gray-900">
@@ -12,6 +14,57 @@ const page = () => {
                 Sign in to your account
               </h1>
               <form className="space-y-4 md:space-y-6" action="#">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Your username (optional for login)
+                  </label>
+                  <input
+                    type="text"
+                    name="username"
+                    id="username"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="name@company.com"
+                    required=""
+                    autoComplete="off"
+                    onChange={(e) => {
+                      const username = e.target.value;
+                      fetch(`/api/username?username=${username}`)
+                        .then((response) => response.json())
+                        .then((data) => {
+                          if (data.available) {
+                            setText(true);
+                          } else {
+                            setText(false);
+                          }
+                        })
+                        .catch((error) => {
+                          console.error(
+                            "Error fetching username availability:",
+                            error
+                          );
+                        });
+                    }}
+                  />
+                  {text && (
+                    <label
+                      htmlFor="email"
+                      className="block mb-2 text-sm font-medium text-green-900 dark:text-white"
+                    >
+                      Username is available
+                    </label>
+                  )}
+                  {!text && (
+                    <label
+                      htmlFor="email"
+                      className="block mb-2 text-sm font-medium text-red-900 dark:text-white"
+                    >
+                      Username is not available
+                    </label>
+                  )}
+                </div>
                 <div>
                   <label
                     htmlFor="email"
@@ -46,17 +99,25 @@ const page = () => {
                 </div>
 
                 <button
-                formAction={login}
+                  formAction={login}
                   className="w-full cursor-pointer bg-gray-900 text-white  hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                 >
                   Sign in
                 </button>
-                <button
-                formAction={signup}
+                {text && <button
+                  formAction={signup}
+              
                   className="w-full cursor-pointer bg-gray-900 text-white  hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                 >
                   Sign Up
-                </button>
+                </button>}
+                {!text && <button
+                  disabled  
+                  className="w-full cursor-not-allowed bg-gray-400 text-white  hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                >
+                  
+                  Sign Up
+                </button>}
               </form>
             </div>
           </div>

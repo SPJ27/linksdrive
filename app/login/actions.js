@@ -1,46 +1,54 @@
-'use server'
+"use server";
 
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from "@/utils/supabase/server";
 
 export async function login(formData) {
-  const supabase = await createClient()
+  const supabase = await createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
   const data = {
-    email: formData.get('email') ,
-    password: formData.get('password') ,
-  }
+    email: formData.get("email"),
+    password: formData.get("password"),
+  };
 
-  const { error } = await supabase.auth.signInWithPassword(data)
-
+  const { error } = await supabase.auth.signInWithPassword(data);
+  console.log("Error:", error);
   if (error) {
-    redirect('/error')
+    redirect("/error");
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/dashboard')
+  revalidatePath("/", "layout");
+  redirect("/dashboard");
 }
 
 export async function signup(formData) {
-  const supabase = await createClient()
+  const email = formData.get("email");
+  const password = formData.get("password");
+  const username = formData.get("username");
+  console.log("Username:", username);
+  const supabase = await createClient();
+  const { data: signupData, error: signupError } = await supabase.auth.signUp({
+    email,
+    password,
+  });
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get('email'),
-    password: formData.get('password'),
+  if (signupError) {
+    console.error("Error signing up:", signupError.message);
+    redirect("/error");
   }
-
-  const { error } = await supabase.auth.signUp(data)
-
-  if (error) {
-    redirect('/error')
-  }
-
-  revalidatePath('/', 'layout')
-  redirect('/dashboard')
+   fetch("http://localhost:3000/api/username", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username: username,
+      email: email,
+  }),
+  })
+    
+  revalidatePath("/", "layout");
+  redirect("/emailsent");
 }
